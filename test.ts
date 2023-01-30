@@ -107,13 +107,15 @@ describe("E2E Test", () => {
         expect(res.text).to.equal("Hello World!");
     });
     it('Sending the user name to the server', async () => {
-        const res = await chai
-            .request(app)
+        chai.request(app)
             .post("/")
-            .send({userData : "newUser"});
-    
-        expect(res).to.have.status(200);
-        expect(res.body.userData).to.equal('newUser');
+            .send({userData : "newUser"})
+            .end((err, res) => {
+
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                expect(res.body.userData).to.equal('newUser');
+            })
     });
 })
 
