@@ -1,5 +1,5 @@
 import { expect, assert } from 'chai';
-import { app, chageKeyboardColour, letterInGuessWord, words, randomWord } from './server';
+import { app, chageKeyboardColour, letterInGuessWord, words, randomWord, checkPlayer } from '../server';
 import chaiHttp  from 'chai-http';
 import chai from 'chai';
 
@@ -84,7 +84,6 @@ describe('chageKeyboardColour function', () => {
         expect(letters[2].colour).equal('orange');
     });
 });
-
 describe("letterInGuessWord function", () => {
 
     const guessWord = 'RAVEN';
@@ -104,18 +103,46 @@ describe("letterInGuessWord function", () => {
         expect(letterInGuessWord(guessWord, 'D')).equal(false);
     });
 });
+describe("checkPlayer function", () => {
+
+    word[0].letter = 'R';
+    word[1].letter = 'A';
+    word[2].letter = 'V';
+    word[3].letter = 'M';
+    word[4].letter = 'E';
+
+    it("Should return 3 letters correct", () => {
+
+        expect(checkPlayer(4, word, 'RAVEN', letters, 0)).equal(3);
+        expect(word[0].colour).equal("green");
+        expect(word[3].colour).equal('gray');
+        expect(word[4].colour).equal('orange');
+    })
+    it("five letters should be correct", () => {
+
+        word[3].letter = 'E';
+        word[4].letter = 'N';
+        expect(checkPlayer(4, word, 'RAVEN', letters, 0)).equal(5);
+        expect(word[0].colour).equal("green");
+        expect(word[1].colour).equal("green");
+        expect(word[2].colour).equal("green");
+        expect(word[3].colour).equal("green");
+        expect(word[4].colour).equal("green");
+    });
+});
 
 chai.use(chaiHttp);
 describe("E2E Test", () => {
 
     const user = "newUser";
 
-    it('Simple test', async () => {
+    it('Simple connection test', async () => {
 
         chai.request(app)
             .get('/')
             .end((err, res) => {
 
+                // tslint:disable-next-line:no-unused-expression
                 expect(err).to.be.null;
                 expect(res).to.have.status(200);
                 expect(res.text).to.equal("Hello World!");
@@ -127,6 +154,7 @@ describe("E2E Test", () => {
             .send({userData : user})
             .end((err, res) => {
 
+                // tslint:disable-next-line:no-unused-expression
                 expect(err).to.be.null;
                 expect(res).to.have.status(200);
                 expect(res.body.userData).to.equal(user);
@@ -139,6 +167,7 @@ describe("E2E Test", () => {
         .send({word, letters, index, fiveLettersCorrect, user})
         .end((err, res) => {
 
+            // tslint:disable-next-line:no-unused-expression
             expect(err).to.be.null;
             expect(res).to.have.status(200);
             assert.notDeepEqual(res.body.words, word);
@@ -152,6 +181,7 @@ describe("E2E Test", () => {
         .send({word, letters, index, fiveLettersCorrect, noUser})
         .end((err, res) => {
 
+            // tslint:disable-next-line:no-unused-expression
             expect(err).to.be.null;
             expect(res).to.have.status(200);
             assert.notDeepEqual(res.body.words, word);

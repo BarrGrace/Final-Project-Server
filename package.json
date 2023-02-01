@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register test.ts",
-    "start": "ts-node server.ts"
+    "test": "mocha -r ts-node/register Tests/test.ts",
+    "start": "ts-node server.ts",
+    "lint": "tslint --project tsconfig.json --type-check"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
+    "@types/cors": "^2.8.13",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
     "chai": "^4.3.7",
