@@ -1,11 +1,27 @@
-import { expect } from 'chai';
+import { expect, assert } from 'chai';
 import { app, chageKeyboardColour, letterInGuessWord, words, randomWord } from './server';
 import chaiHttp  from 'chai-http';
 import chai from 'chai';
 
+const lettercolor = 'white';
+const Wordlecolour = 'beige'
+const letters = [
+    {letter: 'Q', colour: lettercolor}, {letter: 'W', colour: lettercolor}, {letter: 'E', colour: lettercolor}, {letter: 'R', colour: lettercolor}, {letter: 'T', colour: lettercolor}, {letter: 'Y', colour: lettercolor}, {letter: 'U', colour: lettercolor}, {letter: 'I', colour: lettercolor}, {letter: 'O', colour: lettercolor}, {letter: 'P', colour: lettercolor},
+    {letter: 'A', colour: lettercolor}, {letter: 'S', colour: lettercolor}, {letter: 'D', colour: lettercolor}, {letter: 'F', colour: lettercolor}, {letter: 'G', colour: lettercolor}, {letter: 'H', colour: lettercolor}, {letter: 'J', colour: lettercolor}, {letter: 'K', colour: lettercolor}, {letter: 'L', colour: lettercolor},
+    {letter: 'Z', colour: lettercolor}, {letter: 'X', colour: lettercolor}, {letter: 'C', colour: lettercolor}, {letter: 'V', colour: lettercolor}, {letter: 'B', colour: lettercolor}, {letter: 'N', colour: lettercolor}, {letter: 'M', colour: lettercolor}
+  ];
+const word = [{letter : '', colour : Wordlecolour}];
+for (let i = 1; i < 25; i++) {
+
+    word.push({letter : '', colour: Wordlecolour});
+}
+const index = 0;
+const fiveLettersCorrect = 0;
+
+
 describe('randomWord function', () => {
 
-    it('Random word is in the words list', () => {
+    it('Random word is in the guessWord list', () => {
 
         expect(words).to.include(randomWord());
         expect(words).to.include(randomWord());
@@ -15,13 +31,6 @@ describe('randomWord function', () => {
     });
 });
 describe('chageKeyboardColour function', () => {
-
-    const lettercolor = 'white';
-    const letters = [
-        {letter: 'Q', colour: lettercolor}, {letter: 'W', colour: lettercolor}, {letter: 'E', colour: lettercolor}, {letter: 'R', colour: lettercolor}, {letter: 'T', colour: lettercolor}, {letter: 'Y', colour: lettercolor}, {letter: 'U', colour: lettercolor}, {letter: 'I', colour: lettercolor}, {letter: 'O', colour: lettercolor}, {letter: 'P', colour: lettercolor},
-        {letter: 'A', colour: lettercolor}, {letter: 'S', colour: lettercolor}, {letter: 'D', colour: lettercolor}, {letter: 'F', colour: lettercolor}, {letter: 'G', colour: lettercolor}, {letter: 'H', colour: lettercolor}, {letter: 'J', colour: lettercolor}, {letter: 'K', colour: lettercolor}, {letter: 'L', colour: lettercolor},
-        {letter: 'Z', colour: lettercolor}, {letter: 'X', colour: lettercolor}, {letter: 'C', colour: lettercolor}, {letter: 'V', colour: lettercolor}, {letter: 'B', colour: lettercolor}, {letter: 'N', colour: lettercolor}, {letter: 'M', colour: lettercolor}
-      ];
 
     it('Colours have changed', () => {
         chageKeyboardColour(letters, letters[0].letter, 'gray');
@@ -99,23 +108,55 @@ describe("letterInGuessWord function", () => {
 chai.use(chaiHttp);
 describe("E2E Test", () => {
 
+    const user = "newUser";
+
     it('Simple test', async () => {
 
-        const res = await chai.request(app).get('/');
-
-        expect(res).to.have.status(200);
-        expect(res.text).to.equal("Hello World!");
-    });
-    it('Sending the user name to the server', async () => {
         chai.request(app)
-            .post("/")
-            .send({userData : "newUser"})
+            .get('/')
             .end((err, res) => {
 
                 expect(err).to.be.null;
                 expect(res).to.have.status(200);
-                expect(res.body.userData).to.equal('newUser');
+                expect(res.text).to.equal("Hello World!");
+            });
+    });
+    it('Sending the user name to the server', async () => {
+        chai.request(app)
+            .post("/")
+            .send({userData : user})
+            .end((err, res) => {
+
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                expect(res.body.userData).to.equal(user);
             })
     });
+    it('Word Check test', async () => {
+
+        chai.request(app)
+        .post('/wordCheck')
+        .send({word, letters, index, fiveLettersCorrect, user})
+        .end((err, res) => {
+
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            assert.notDeepEqual(res.body.words, word);
+            assert.notDeepEqual(res.body.letters, letters);
+        })
+    });
+    it('The game is active even when the user that was sent is undefined', async () => {
+        const noUser = undefined;
+        chai.request(app)
+        .post('/wordCheck')
+        .send({word, letters, index, fiveLettersCorrect, noUser})
+        .end((err, res) => {
+
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            assert.notDeepEqual(res.body.words, word);
+            assert.notDeepEqual(res.body.letters, letters);
+        })
+    })
 })
 
